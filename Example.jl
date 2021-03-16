@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.21
+# v0.12.4
 
 using Markdown
 using InteractiveUtils
@@ -38,7 +38,7 @@ main {
 md"""
 
 ## Strutural analysis of __E.coli__ central carbon metabolism
-Lets take a look at the reaction network that is used by __E.coli__ to convert sugar (glucose) into energy (ATP) and the carbon building blocks required for growth. The _E.coli_ model that we'll explore is taken from the publication:
+Let's take a look at the reaction network that is used by __E.coli__ to convert sugar (glucose) into energy (ATP) and the carbon building blocks required for growth. The _E.coli_ model that we'll explore is taken from the publication:
 
 [Orth JD, Fleming RM, Palsson BØ. Reconstruction and Use of Microbial Metabolic Networks: the Core Escherichia coli Metabolic Model as an Educational Guide. EcoSal Plus. 2010 Sep;4(1). doi: 10.1128/ecosalplus.10.2.1. PMID: 26443778.](https://pubmed.ncbi.nlm.nih.gov/26443778/)
 
@@ -113,6 +113,9 @@ begin
     close(file) 
 end
 
+# ╔═╡ bd4725f0-8680-11eb-2fec-a7d625bec2e6
+cobra_model_dictionary
+
 # ╔═╡ 4d37f3ee-8657-11eb-3d66-a5b3c2ddb69b
 # get the stoichiometric array from the mat model file -
 stoichiometric_matrix = Matrix(cobra_model_dictionary["S"])
@@ -149,6 +152,15 @@ where $\bar{S}$ denotes the __binary__ stoichiometric array (all non-zero values
 # Metabolite adj matrix -
 A_m = binary_stoichiometric_matrix*transpose(binary_stoichiometric_matrix)
 
+# ╔═╡ b2644cc0-8681-11eb-1bf0-41fe17eaed38
+[diag(A_m) cobra_model_dictionary["mets"]]
+
+# ╔═╡ dc08ae90-8681-11eb-2814-b50a1550e3d7
+begin
+	most_connected_m_index = sortperm(diag(A_m),rev=true)
+	cobra_model_dictionary["mets"][most_connected_m_index]
+end
+
 # ╔═╡ 2caf8728-8665-11eb-2c3f-b9a83c0cd228
 md"""
 
@@ -169,7 +181,13 @@ A_v = transpose(binary_stoichiometric_matrix)*binary_stoichiometric_matrix
 diag(A_v)
 
 # ╔═╡ 08b53c6e-866f-11eb-3ac0-55d6e6c588a9
-cobra_model_dictionary
+cobra_model_dictionary["rxns"]
+
+# ╔═╡ b78fb1b6-8682-11eb-27fd-01460c2b4d59
+begin
+	most_connected_v_index = sortperm(diag(A_v), rev=true)
+	cobra_model_dictionary["rxns"][most_connected_v_index]
+end
 
 # ╔═╡ dda1acce-865a-11eb-12f1-69c460facd2e
 md"""
@@ -222,7 +240,7 @@ U
 begin
 	
 	# what is the col index that we want to look at?
-	col_index_to_look_at = 3
+	col_index_to_look_at = 1
 	
 	# sort the first U col (most imporant mode in species space) -
 	sort_index_col_U = sortperm(abs.(U[:,col_index_to_look_at]), rev=true)
@@ -303,23 +321,27 @@ end
 
 # ╔═╡ Cell order:
 # ╟─5f523bec-8658-11eb-01d8-4daa07ab805d
-# ╠═871b4af6-8658-11eb-07e4-492066309dde
+# ╟─871b4af6-8658-11eb-07e4-492066309dde
 # ╟─256c3e14-8662-11eb-3a85-fd511cba9e3e
 # ╠═4d3c839c-8656-11eb-2c53-5b065c79a757
 # ╠═1443255a-8658-11eb-32f5-6b721d5863f3
 # ╠═62c08610-865f-11eb-2d62-0f0dc6c54eac
 # ╟─149b1c7e-8660-11eb-09d9-d1ad428024b8
 # ╠═f06779e6-8656-11eb-3473-d5454656a725
+# ╠═bd4725f0-8680-11eb-2fec-a7d625bec2e6
 # ╠═4d37f3ee-8657-11eb-3d66-a5b3c2ddb69b
 # ╠═1d2e460c-8667-11eb-2edd-ef0755503f0c
 # ╟─8bb8295a-8665-11eb-1acb-536bf3c24c4a
 # ╠═11320712-8658-11eb-06ee-dd65c9463388
 # ╟─115d93fc-8665-11eb-2f0b-e3d56e7e0c88
 # ╠═075c9c5a-865a-11eb-3d3d-8f77297e821c
+# ╠═b2644cc0-8681-11eb-1bf0-41fe17eaed38
+# ╠═dc08ae90-8681-11eb-2814-b50a1550e3d7
 # ╟─2caf8728-8665-11eb-2c3f-b9a83c0cd228
 # ╠═2a479544-865a-11eb-3924-5f52d70461e5
 # ╠═e9e9726e-866e-11eb-35d4-ebba571d4830
 # ╠═08b53c6e-866f-11eb-3ac0-55d6e6c588a9
+# ╠═b78fb1b6-8682-11eb-27fd-01460c2b4d59
 # ╟─dda1acce-865a-11eb-12f1-69c460facd2e
 # ╟─47611b1c-8666-11eb-3038-9b96fe5aca80
 # ╠═2f3ef28c-8666-11eb-0880-c5caf901d230
